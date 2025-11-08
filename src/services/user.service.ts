@@ -164,7 +164,9 @@ export class UserService {
       if (data.firstName !== undefined) user.firstName = data.firstName.trim();
       if (data.lastName !== undefined) user.lastName = data.lastName.trim();
       if (data.gender !== undefined) user.gender = data.gender;
-      if (data.dob !== undefined) user.dob = data.dob ? new Date(data.dob) : undefined;
+      if (data.dob !== undefined) {
+        user.set('dob', data.dob ? new Date(data.dob) : undefined);
+      }
       if (data.phone !== undefined) user.phone = data.phone.trim();
 
       await user.save();
