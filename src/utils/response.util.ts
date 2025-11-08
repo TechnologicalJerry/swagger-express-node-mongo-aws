@@ -20,8 +20,10 @@ export const sendError = (res: Response, message: string, statusCode = 400, erro
   const response: ApiResponse = {
     success: false,
     message,
-    error,
   };
+  if (error !== undefined) {
+    response.error = error;
+  }
   res.status(statusCode).json(response);
 };
 
