@@ -1,0 +1,45 @@
+{
+  "name": "swagger-express-node-mongo-aws",
+  "version": "1.0.0",
+  "description": "A simple authentication, session management, and user/product CRUD application built with Express.js, MongoDB, and AWS, documented using Swagger for easy API testing and integration.",
+  "keywords": [
+    "nodejs",
+    "express",
+    "swagger",
+    "mongodb",
+    "mongoose",
+    "aws",
+    "rest-api",
+    "crud",
+    "authentication",
+    "authorization",
+    "session",
+    "api-docs",
+    "backend",
+    "server",
+    "expressjs",
+    "node",
+    "swagger-ui",
+    "mongo",
+    "cloud",
+    "fullstack"
+  ],
+  "homepage": "https://github.com/TechnologicalJerry/swagger-express-node-mongo-aws#readme",
+  "bugs": {
+    "url": "https://github.com/TechnologicalJerry/swagger-express-node-mongo-aws/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TechnologicalJerry/swagger-express-node-mongo-aws.git"
+  },
+  "license": "MIT",
+  "author": "technojerry",
+  "type": "commonjs",
+  "main": "server.ts",
+  "scripts": {
+    "start": "ts-node server.ts",
+    "dev": "nodemon --watch src --exec ts-node server.ts",
+    "build": "tsc",
+    "test": "jest"
+  }
+}
