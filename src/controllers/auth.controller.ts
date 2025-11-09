@@ -4,6 +4,7 @@ import { sendSuccess, sendError } from '../utils/response.util';
 import { logger } from '../config/logger';
 
 export class AuthController {
+  
   async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const {
