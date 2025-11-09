@@ -105,7 +105,7 @@ export class UserService {
       const email = data.email.trim().toLowerCase();
       const user = await User.findOne({ email });
       if (!user) {
-        throw Object.assign(new Error('Invalid email or password'), { statusCode: 401 });
+        throw Object.assign(new Error('Invalid email'), { statusCode: 401 });
       }
 
       if (!user.isActive) {
@@ -114,7 +114,7 @@ export class UserService {
 
       const isPasswordValid = await comparePassword(data.password, user.password);
       if (!isPasswordValid) {
-        throw Object.assign(new Error('Invalid email or password'), { statusCode: 401 });
+        throw Object.assign(new Error('Invalid password'), { statusCode: 401 });
       }
 
       user.lastLoginAt = new Date();
