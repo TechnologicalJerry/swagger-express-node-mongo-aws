@@ -1,9 +1,62 @@
 import { Request, Response, NextFunction } from 'express';
-import { userService } from '../services/user.service';
+import { userService, PublicUser } from '../services/user.service';
 import { sendSuccess, sendError } from '../utils/response.util';
 import { logger } from '../config/logger';
 
 export class AuthController {
+  private async establishSession(req: Request, user: PublicUser): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      if (!req.session) {
+        reject(new Error('Session middleware is not configured'));
+        return;
+      }
+
+      req.session.regenerate((regenerateError) => {
+        if (regenerateError) {
+          reject(regenerateError);
+          return;
+        }
+
+        req.session.userId = user.id;
+        req.session.email = user.email;
+        req.session.user = {
+          id: user.id,
+          email: user.email,
+        };
+        req.session.status = 'logged_in';
+
+        req.session.save((saveError) => {
+          if (saveError) {
+            reject(saveError);
+            return;
+          }
+          resolve();
+        });
+      });
+    });
+  }
+
+  private async updateSessionOnLogout(req: Request): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      if (!req.session) {
+        resolve();
+        return;
+      }
+
+      delete req.session.user;
+      delete req.session.userId;
+      delete req.session.email;
+      req.session.status = 'logged_out';
+
+      req.session.save((saveError) => {
+        if (saveError) {
+          reject(saveError);
+          return;
+        }
+        resolve();
+      });
+    });
+  }
   
   async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -47,6 +100,7 @@ export class AuthController {
       const { email, password } = req.body;
 
       const result = await userService.login({ email, password });
+      await this.establishSession(req, result.user);
 
       sendSuccess(res, { user: result.user, token: result.token }, 'Login successful');
     } catch (error) {
@@ -112,6 +166,17 @@ export class AuthController {
       sendSuccess(res, null, 'Password reset successfully');
     } catch (error) {
       logger.error('Reset password error', error);
+      next(error);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.updateSessionOnLogout(req);
+      res.clearCookie('connect.sid');
+      sendSuccess(res, null, 'Logout successful');
+    } catch (error) {
+      logger.error('Logout error', error);
       next(error);
     }
   }
