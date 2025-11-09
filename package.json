@@ -37,10 +37,11 @@
   "type": "commonjs",
   "main": "server.ts",
   "scripts": {
-    "start": "ts-node src/server.ts",
     "dev": "nodemon --watch src --exec ts-node src/server.ts",
+    "serve": "ts-node src/server.ts",
+    "test": "jest",
     "build": "tsc",
-    "test": "jest"
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -66,6 +67,7 @@
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.10.0",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
