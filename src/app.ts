@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import routes from './routes/index.routes';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDocument } from './docs/swagger';
 import { sessionMiddleware } from './middlewares/session.middleware';
 import { notFoundHandler, errorHandler } from './middlewares/error.middleware';
 import { env } from './config/env';
@@ -22,6 +24,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(sessionMiddleware);
+
+app.use('/swagger-api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
 
 app.use('/api', routes);
 
