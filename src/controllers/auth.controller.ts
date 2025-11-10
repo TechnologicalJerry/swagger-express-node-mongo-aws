@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { userService, PublicUser } from '../services/user.service';
 import { sendSuccess, sendError } from '../utils/response.util';
 import { logger } from '../config/logger';
+import { sessionService } from '../services/session.service';
 
 export class AuthController {
   private async establishSession(req: Request, user: PublicUser): Promise<void> {
@@ -17,22 +18,35 @@ export class AuthController {
           return;
         }
 
-        const session = req.session as any;
-        session.userId = user.id;
-        session.email = user.email;
-        session.user = {
-          id: user.id,
-          email: user.email,
-        };
-        session.status = 'logged_in';
+        (async () => {
+          try {
+            req.session.userId = user.id;
+            req.session.email = user.email;
+            req.session.user = {
+              id: user.id,
+              email: user.email,
+            };
+            req.session.status = 'logged_in';
 
-        req.session.save((saveError) => {
-          if (saveError) {
-            reject(saveError);
-            return;
+            const sessionRecord = await sessionService.recordLogin({
+              sessionId: req.sessionID,
+              user,
+            });
+            if (sessionRecord) {
+              req.session.userSessionId = sessionRecord.id;
+            }
+
+            req.session.save((saveError) => {
+              if (saveError) {
+                reject(saveError);
+                return;
+              }
+              resolve();
+            });
+          } catch (error) {
+            reject(error);
           }
-          resolve();
-        });
+        })();
       });
     });
   }
@@ -44,11 +58,11 @@ export class AuthController {
         return;
       }
 
-      const session = req.session as any;
-      delete session.user;
-      delete session.userId;
-      delete session.email;
-      session.status = 'logged_out';
+      req.session.status = 'logged_out';
+
+      sessionService
+        .recordLogout({ sessionId: req.sessionID })
+        .catch((error) => logger.error('Failed to record logout session', { error }));
 
       req.session.save((saveError) => {
         if (saveError) {
@@ -59,7 +73,7 @@ export class AuthController {
       });
     });
   }
-  
+
   async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const {
@@ -140,12 +154,12 @@ export class AuthController {
       const responseData =
         resetToken.length > 0
           ? {
-              resetToken,
-              message: 'Use the provided token to reset the password.',
-            }
+            resetToken,
+            message: 'Use the provided token to reset the password.',
+          }
           : {
-              message: 'If an account exists for the provided email, a reset token has been generated.',
-            };
+            message: 'If an account exists for the provided email, a reset token has been generated.',
+          };
 
       sendSuccess(res, responseData, 'Password reset requested');
     } catch (error) {
@@ -185,4 +199,3 @@ export class AuthController {
 }
 
 export const authController = new AuthController();
-
