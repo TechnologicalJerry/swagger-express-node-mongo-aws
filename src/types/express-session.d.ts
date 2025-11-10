@@ -9,6 +9,7 @@ declare module 'express-session' {
       id: string;
       email: string;
     };
+    userSessionId?: string;
   }
 }
 
