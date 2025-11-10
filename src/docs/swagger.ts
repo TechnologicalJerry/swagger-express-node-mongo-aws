@@ -470,6 +470,42 @@ const swaggerDocument = {
         },
       },
     },
+    '/auth/logout': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Logout authenticated user',
+        description: 'Clears the active session and marks the audit log as logged out.',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Logout successful',
+            content: {
+              'application/json': {
+                schema: {
+                  allOf: [
+                    { $ref: '#/components/schemas/SuccessResponse' },
+                    {
+                      type: 'object',
+                      properties: {
+                        data: { nullable: true, example: null },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
     '/users/{id}': {
       get: {
         tags: ['Users'],
